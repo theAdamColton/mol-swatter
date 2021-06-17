@@ -1,0 +1,22 @@
+[package]
+name = "mol-swatter"
+version = "0.0.1"
+authors = ["Adam <atcolton@tutanota.com>"]
+edition = "2018"
+
+[lib]
+name = "mol_swatter"
+# "cdylib" is necessary to produce a shared library for Python to import from.
+#
+# Downstream Rust code (including code in `bin/`, `examples/`, and `tests/`) will not be able
+# to `use string_sum;` unless the "rlib" or "lib" crate type is also included, e.g.:
+# crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+#
+[dependencies]
+nom = "6.1.2"
+pyo3 = {git = "https://github.com/PyO3/pyo3", features = ["extension-module"]}
+
+
