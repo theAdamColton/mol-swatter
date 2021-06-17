@@ -137,7 +137,7 @@ mod tests {
     }
     #[test]
     fn test_big_mol() {
-        let molecule = parse_mol("../scraper/raw_data/Decaborane.mol");
+        let molecule = parse_mol(&(TEST_DIR.to_owned() + "Decaborane.mol"));
         println!("{}", molecule.to_string());
     }
 }
