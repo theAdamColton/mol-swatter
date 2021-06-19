@@ -33,8 +33,9 @@ def get_url(starting_mass):
 
 def save_progress(max_size):
     f = open(LOGGING_PROGRESS_FILE, "w")
-    f.write(max_size)
+    f.write(str(max_size))
     f.close()
+    
 
 def get_progress():
     try:
