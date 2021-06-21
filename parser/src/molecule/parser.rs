@@ -92,8 +92,10 @@ pub fn parse_mol(file_path : &str) -> Molecule {
     debug_println!("{}", molecule.to_string());
 
     loop {
-        // if the escape character is reached, 'M', then breaks the loop
-        if is_next_char_x(contents, 'M') {
+        // If the escape character is reached, 'M', then breaks the loop
+        // In some mol files, 'A' marks the beggining of a new section after the bond adjacency
+        // section
+        if is_next_char_x(contents, 'M') || is_next_char_x(contents, 'A') {
             break;
         }
 
@@ -123,7 +125,7 @@ mod tests {
     }
     #[test]
     fn test_mol_parse() {
-        let molecule = parse_mol(&(TEST_DIR.to_owned() + "Pentanoic acid.mol"));
+        let molecule = get_mol("Pentanoic acid.mol");
         println!("{}", molecule.to_string());
     }
     #[test]
@@ -136,8 +138,13 @@ mod tests {
         println!("{}", molecule.to_string());
     }
     #[test]
-    fn test_big_mol() {
-        let molecule = parse_mol(&(TEST_DIR.to_owned() + "Decaborane.mol"));
+    fn test_tricky_mol() {
+        let molecule = get_mol("Decaborane.mol");
         println!("{}", molecule.to_string());
+        let molecule = get_mol("1,2-Benzenedicarboxylic acid, diisooctyl ester.mol");
+        println!("{}", molecule.to_string());
+    }
+    fn get_mol(file : &str) -> Molecule {
+        parse_mol(&(TEST_DIR.to_owned() + file))
     }
 }
