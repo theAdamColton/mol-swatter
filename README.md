@@ -25,5 +25,5 @@ In future iterations it would be useful to pipe the output of the parser into a 
 # webbook.nist.gov scraper
 
 
-Uses Beautiful soup to scrape .mol and IR spectrum .sdf files from the [nist.gov](https://webbook.nist.gov/cgi/cbook.cgi?Value=10%2C1&VType=MW&Formula=&) website. Scrapes from all molecules containing carbon starting with a molar mass of 1, to as high a mass as the dataset goes. The scaper will automatically download scraped files into ```scraper/raw_data/```. Currently the scraper will not resume from where it is interrupted. You can manually change the starting molar mass by editing the URL on line 11, changing the ```......Value=10%2C*....```, where ```*``` is the desired starting molar mass.
+Uses Beautiful soup to scrape .mol and IR spectrum .sdf files from the [nist.gov](https://webbook.nist.gov/cgi/cbook.cgi?Value=10%2C1&VType=MW&Formula=&) website. Scrapes from all molecules containing carbon starting with a molar mass of 1, to as high a mass as the dataset goes. The scaper will automatically download scraped files into ```scraper/raw_data/```. Currently the scraper will resume from where it is interrupted. You can manually change the starting molar mass by passing it as an argument.
 
