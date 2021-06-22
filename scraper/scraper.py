@@ -23,19 +23,19 @@ def main():
     else:
         res = get_progress()
         starting_mass = res if res is not None else starting_mass
-    url = get_url(starting_mass)
+    max_mass = 800
+    url = get_url(starting_mass, 800)
     logging.info("Scraping from starting mass {} url: {}".format(starting_mass, url))
-    scrape(url, 300) 
+    scrape(url, 800) 
 
-def get_url(starting_mass):
-    url ="https://webbook.nist.gov/cgi/cbook.cgi?Value={}-500&VType=MW&Formula=&AllowOther=on&AllowExtra=on&Units=SI&cIR=on".format(starting_mass)
+def get_url(starting_mass, max_mass):
+    url ="https://webbook.nist.gov/cgi/cbook.cgi?Value={}-{}&VType=MW&Formula=&AllowOther=on&AllowExtra=on&Units=SI&cIR=on".format(starting_mass, max_mass)
     return url
 
-def save_progress(max_size):
+def save_progress(mass):
     f = open(LOGGING_PROGRESS_FILE, "w")
-    f.write(str(max_size))
+    f.write(str(mass))
     f.close()
-    
 
 def get_progress():
     try:
@@ -47,7 +47,7 @@ def get_progress():
     except Exception as e:
         return None
 
-def scrape(url, max_size):
+def scrape(url, max_mass):
     try:
         res = requests.get(url)
     except Exception as e:
@@ -57,17 +57,17 @@ def scrape(url, max_size):
     list_parent = soup.find("body").find("ol")
     li_list = list_parent.find_all('li')
     # Attempts to find the molar mass of the last element in the ol list
-    final_size = li_list[-1]
+    final_mass = li_list[-1]
     try:
-        final_size = float(final_size.find("strong").text.strip())
+        final_mass = float(final_mass.find("strong").text.strip())
     except Exception as e:
         logging.warning("failed to find finalSize :" + str(e))
         return
-    logging.info("Final_size set to : " + str(final_size))
+    logging.info("Final_size set to : " + str(final_mass))
     parseSearchBody(soup, url)
     # Once this search page has been fully scraped, saves max_size
-    save_progress(final_size)
-    scrape(get_url(final_size), max_size)
+    save_progress(final_mass)
+    scrape(get_url(final_mass, max_mass), max_mass)
 
 def parseSearchBody(soup, url):
     listParent = soup.find("body").find("ol")
@@ -113,9 +113,12 @@ def parse_IR_page(url):
         molfile_link = urljoin(url, molfile_link['href'])
     jcamp_link = urljoin(url, jcamp_link['href'])
     # For setting the file name
-    chemname = soup.select_one("h1[id=Top]").text.strip() + ".jdx"
-    jdxname = chemname.format(chemname, sanitize_filename(chemname ))
-    molname = jdxname.removesuffix(".jdx") + ".mol"
+    try:
+        chemname = soup.select_one("h1[id=Top]").text.strip() + ".jdx"
+        jdxname = chemname.format(chemname, sanitize_filename(chemname ))
+        molname = jdxname.removesuffix(".jdx") + ".mol"
+    except Exception as e:
+        logging.warn("Error editing filename! {} \n\turl:{}".format(e, url))
     try:
         download_file(jcamp_link, jdxname)
         if molname is not None:
@@ -138,7 +141,6 @@ def download_file(url, file_name):
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
-    print("Downloaded")
     logging.info("Downloaded " + file_path)
 
 def uniquify(path):
