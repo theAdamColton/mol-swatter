@@ -33,7 +33,6 @@ pub struct Spectrum {
 impl Spectrum {
     // Instantiate a new Spectrum with empty y_values vector
     pub fn new(name : &str, spectrum_type : &str, state : &str, first_x : f32, last_x : f32, npoints : i32) -> Spectrum {
-
         let (mut first_x, mut last_x) = (first_x, last_x);
         // Enforces that first_x is less than last_x
         if first_x > last_x {
@@ -41,8 +40,8 @@ impl Spectrum {
             first_x = last_x;
             last_x = temp;
         }
-
-        let delta_x = (last_x - first_x) / (npoints as f32);
+        assert!(npoints > 1 );
+        let delta_x : f32 = (last_x - first_x) / (npoints as f32 - 1.0);
         Spectrum {
             name : name.to_string(),
             spectrum_type : spectrum_type.to_string(),
@@ -67,24 +66,22 @@ impl Spectrum {
 
     // Fit this spectrum into a different shaped spectrum
     pub fn transform(&self, first_x : f32, last_x : f32, npoints : i32) -> Spectrum { 
-
         assert!(first_x < last_x);
         // This molecule must be complete
         assert!(self.is_complete());
-
-        let delta_x : f32 = (last_x - first_x) / (npoints as f32);
+        // Can only have positive non-zero number of npoints
+        assert!(npoints > 1);
+        let delta_x: f32 = (last_x - first_x) / (npoints as f32 - 1.0);
 
         let mut spec = Spectrum::new(
             &self.name, &self.spectrum_type, &self.state, first_x, last_x, npoints); 
-
         // Iterate curr_x from first_x to last_x by delta_x
         let mut curr_x = first_x + delta_x;
         let mut prev_x = first_x;
         loop {
-            if curr_x > last_x {
+            if prev_x > last_x {
                 break
             }
-
             spec.add_y(self.find_slice_average(prev_x, curr_x));
             prev_x = curr_x;
             curr_x += delta_x;
@@ -94,7 +91,6 @@ impl Spectrum {
 
     // Returns all of the Y values
     pub fn get_y_values(&self) -> Vec<f32> {
-        assert!(self.is_complete());
         self.y_values.to_owned()
     }
 
@@ -115,9 +111,9 @@ impl Spectrum {
     }
 
     pub fn print_xy(&self) {
-        assert!(self.is_complete());
         let y_values : Vec<f32> = self.get_y_values();
         let x_values : Vec<f32> = self.get_x_values();
+        assert_eq!(x_values.len(), y_values.len());
         for i in 0..y_values.len() {
             print!("({}, {})", x_values[i], y_values[i]);
         }       
@@ -126,13 +122,11 @@ impl Spectrum {
 
     // Finds the average value of y values between two x values inclusive
     fn find_slice_average(&self, first_x : f32, last_x : f32) -> f32 {
-        //assert!(first_x >= self.first_x);
-        //assert!(last_x <= self.last_x);
         let mut curr_x = first_x;
         let mut count = 0.0;
         let mut sum = 0.0;
         loop {
-            if curr_x >= last_x {
+            if curr_x > last_x {
                 break
             }
             count +=1.0;
@@ -145,7 +139,7 @@ impl Spectrum {
             sum / count
         }
     }
-
+    
     // Get the value of y at any x
     fn f_of(&self, x : f32) -> f32 {
         let index : usize = ((x - self.first_x) / self.delta_x).round() as usize;
@@ -170,8 +164,6 @@ impl Spectrum {
         }
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -219,16 +211,16 @@ mod tests {
         assert_eq!(spectrum.f_of(4.0), 1.0);
         assert_eq!(spectrum.f_of(4.1), 1.0);
         assert_eq!(spectrum.f_of(4.4), 1.0);
-        assert_eq!(spectrum.f_of(5.4), 1.1);
+        assert_eq!(spectrum.f_of(4.999), 1.0);
+        assert_eq!(spectrum.f_of(5.0), 1.1);
         assert_eq!(spectrum.f_of(5.6), 1.1);
-        assert_eq!(spectrum.f_of(5.99), 1.1);
-        assert_eq!(spectrum.f_of(6.1), 1.2);
-        assert_eq!(spectrum.f_of(6.4), 1.2);
+        assert_eq!(spectrum.f_of(6.99), 1.1);
+        assert_eq!(spectrum.f_of(7.0), 1.2);
 
         // calculates average manually
         let mut sum = spectrum.f_of(4.0);
-        sum += spectrum.f_of(5.333);
-        sum += spectrum.f_of(6.6666667);
+        sum += spectrum.f_of(6.0);
+        sum += spectrum.f_of(8.0);
         let avg = sum / 3.0;
         
         assert_eq!(avg, 1.1);
@@ -242,9 +234,10 @@ mod tests {
         spectrum.add_y(1.2);
 
         println!("{}", spectrum.to_string());
+        assert!(spectrum.is_complete());
         spectrum.print_xy();
         
-        let res = spectrum.transform(4.0, 6.0, 1);
+        let res = spectrum.transform(4.0, 6.0, 2);
         
         println!("{}", res.to_string());
         res.print_xy();
@@ -255,10 +248,11 @@ mod tests {
     fn test_big_transform() {
         // Creates a spectrum of 388.677 to 3799.46 by 0.870985
         let spectrum = get_spectrum("Water.jdx");
-        // Transforms into new spectrum of 400.0 to 3000.0 by 1.0
-        let transformed_spectrum = spectrum.transform(400.0, 3000.0, 2600);
+        let transformed_spectrum = spectrum.transform(100.0, 1000.0, 10);
         println!("{}", transformed_spectrum.to_string());
         transformed_spectrum.print_xy();
+        assert_eq!(transformed_spectrum.get_x_values().len(), 
+            transformed_spectrum.get_y_values().len());
     }
     #[test]
     fn test_funky_files() {
