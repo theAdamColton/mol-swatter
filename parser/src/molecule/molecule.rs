@@ -30,7 +30,7 @@ impl Molecule {
     // returns an error string if the new bond was invalid, (in an occupied location)
     pub fn add_bond(&mut self, x : usize, y : usize, z : i32) {
         if self.matrix.get(x as usize, y as usize) != 0 {
-            panic!(&"bond has already been set!")
+            panic!("{}", "bond has already been set!")
         } else {
             self.matrix.set(x, y, z);
         }
@@ -104,10 +104,10 @@ mod tests {
         println!("{}", my_mol.to_string());
 
         // adds a double bond between 'C' and 'O'
-        let result = my_mol.add_bond(1, 2, 2);
+        let _result = my_mol.add_bond(1, 2, 2);
 
         // attempting to add another bond will result in an error
-        //let result = my_mol.add_bond(1, 2, 1);
+        //let _result = my_mol.add_bond(1, 2, 1);
     }
     #[test]
     fn test_add_bond() {

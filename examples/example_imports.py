@@ -68,6 +68,7 @@ input(
     """Press enter to continue, the script will
 show the data transform methods of the .jdx spectra""")
 spectrum = mol_swatter.Spectrum(DATA_DIR + "Water.jdx")
+spectrum = spectrum.transform(100, 1000, 10)
 print(spectrum.to_string())
 x = spectrum.get_x_values()
 y = spectrum.get_y_values()

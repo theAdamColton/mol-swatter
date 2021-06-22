@@ -37,7 +37,7 @@ pub fn get_funct_groups() -> Vec<FunctGroup> {
     o.push(disulfide()); o.push(sulfide()); o.push(sulfoxide());
     o.push(phosphonic_acid()); o.push(phosphate());
     o.push(borino()); o.push(borono()); o.push(boronate());
-    o.push(RLi()); o.push(grignard());
+    o.push(r_li()); o.push(grignard());
 
     o
 }
@@ -252,7 +252,7 @@ pub fn borino() -> FunctGroup {
 
 // ******************* organo metallics ****************************8
 
-pub fn RLi() -> FunctGroup {
+pub fn r_li() -> FunctGroup {
     let mut molecule = Molecule::new(vec!("R", "Li"));
     molecule.add_bond(0, 1, 1);
     FunctGroup{molecule, name : "RLi"}

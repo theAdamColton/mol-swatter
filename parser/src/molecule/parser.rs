@@ -40,10 +40,10 @@ fn parse_atom_list(i : &str, num_atoms : i32) -> IResult<&str, Vec<&str>> {
     let mut trimmed = i;
     let mut atoms : Vec<&str> = Vec::new();
 
-    for i in 0..num_atoms {
+    for _i in 0..num_atoms {
         // This section parses the 3d coordinates up the element character
         // For each 3d coordinate
-        for x in 0..3 {
+        for _x in 0..3 {
             trimmed = whitespace(trimmed).unwrap().0;
             trimmed = not_whitespace(trimmed).unwrap().0;
         }
@@ -51,8 +51,8 @@ fn parse_atom_list(i : &str, num_atoms : i32) -> IResult<&str, Vec<&str>> {
         trimmed = whitespace(trimmed).unwrap().0;
 
         // takes the element char and adds it to the atoms vector
-        let toAddElement = not_whitespace(trimmed).unwrap().1;
-        atoms.push(toAddElement);
+        let to_add = not_whitespace(trimmed).unwrap().1;
+        atoms.push(to_add);
         
         // Goes to the next line
         trimmed = not_newline(trimmed)?.0;

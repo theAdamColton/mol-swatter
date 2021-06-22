@@ -46,7 +46,7 @@ fn parse_until_field<'a>(i : &'a str, field : &'a str) -> IResult<&'a str, &'a s
 fn parse_field<'a>(i : &'a str, field : &'a str, escape_str : &'a str) -> IResult<&'a str, &'a str> {
     let mut out : &'a str = i;
     // Removes the "##"
-    out = tag_x(out, "##")?.0;
+    out = tag_x(out, escape_str)?.0;
     // Parses the field, returns an error otherwise
     out = tag_x(out, field)?.0;
     // Parses the equals sign after the field
@@ -97,7 +97,7 @@ fn get_field_or_default<'a>(i : &'a str, field : &'a str, default : &'a str) -> 
 // Feed this function a jdx filepath and get back a Spectrum struct
 pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
     // Reads to string all at once
-    let mut file : &str;
+    let file : &str;
     let res = &read_file_to_string(filepath);
     match res {
         Err(_) => {
@@ -157,9 +157,7 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
 
 
     // Parses until reaching the ##END
-    let mut linenum = 0;
     loop {
-        linenum +=1;
 
         // If at the end of the data section
         if is_next_tag_x(file, "##END") {

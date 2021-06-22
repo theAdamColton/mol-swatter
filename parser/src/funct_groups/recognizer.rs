@@ -31,7 +31,7 @@ pub fn is_subgraph(maj_mol : &Molecule, sub_mol : &Molecule) -> bool {
     let sub_atoms = &sub_mol.atoms;
 
     // sub_atom is the first atom in the sub_mol that is not R
-    let sub_atom_j = get_not_R(sub_atoms);
+    let sub_atom_j = get_not_r(sub_atoms);
     let sub_atom = &sub_atoms[sub_atom_j];
 
     for i in (0..maj_atoms.len()).rev() {
@@ -51,7 +51,7 @@ pub fn is_subgraph(maj_mol : &Molecule, sub_mol : &Molecule) -> bool {
     false
 } 
 
-fn get_not_R(atoms : &Vec<String>) -> usize {
+fn get_not_r(atoms : &Vec<String>) -> usize {
     for j in (0..atoms.len()).rev() {
         if atoms[j] != "R" {
             return j     
@@ -128,7 +128,6 @@ fn is_subgraph_from_here(maj_mol : &Molecule, maj_i : usize,
         
         // handles 0 maj_bonds    (can still count as being bonded to hydrogen)
         if should_check_maj_bonds && cntr == 0 {
-            at_least_one = true;
             continue
         }
 

@@ -260,6 +260,7 @@ mod tests {
         let trans_spec = spectrum.transform(400.0, 3000.0, 2600);
         println!("{}", trans_spec.to_string());
         let spectrum = get_spectrum("4-Octene, (Z)-.jdx");
+        spectrum.transform(300.0, 4000.0, 100);
     }
     #[test]
     fn test_funky_file_2() {

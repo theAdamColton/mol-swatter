@@ -2,8 +2,6 @@
 Main entry for the C foreign-function interface
 */
 
-#[macro_use] extern crate nom;
-
 mod molecule;
 mod funct_groups;
 mod get_res;
@@ -13,17 +11,16 @@ mod constants;
 
 use molecule::molecule::*;
 use molecule::parser::*;
-use get_res::{GetRes, FunctGroupResult};
+use get_res::{GetRes,};
 
 use spectra::{spectrum, parser::parse_jdx};
 
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 // Object for parsing functional groups from .mol files
 #[pyclass]
 struct ParseGroups {
-    GetRes : GetRes,
+    get_res : GetRes,
 }
 
 #[pymethods]
@@ -33,22 +30,22 @@ impl ParseGroups {
     // can only be created from Rust, but not from Python.
     #[new]
     fn new() -> Self {
-       ParseGroups{GetRes : GetRes::new()}
+       ParseGroups{get_res : GetRes::new()}
     }
     fn get_funct_result(&mut self, file_path :&str) -> PyResult<Vec<bool>> {
-       Ok(self.GetRes.get_res_from_file(file_path).result)
+       Ok(self.get_res.get_res_from_file(file_path).result)
     }
 
     fn get_funct_result_and_print(&mut self, file_path : &str) -> PyResult<Vec<bool>> {
-        Ok(self.GetRes.get_res_from_file_and_print(file_path).result)
+        Ok(self.get_res.get_res_from_file_and_print(file_path).result)
     }
 
     fn get_funct_groups(&mut self) -> PyResult<Vec<String>> {
-        Ok(self.GetRes.get_funct_groups())
+        Ok(self.get_res.get_funct_groups())
     }
 
     fn get_matrix(&self, file_path : &str) -> PyResult<Vec<Vec<i32>>> {
-        Ok(self.GetRes.get_matrix(file_path))
+        Ok(self.get_res.get_matrix(file_path))
     }
 }
 
@@ -105,7 +102,8 @@ mod tests {
     use super::*;
     #[test]
     fn test_imports() {
-        let mut molecule : Molecule = Molecule::new(vec!["a", "b", "c", "d"]);
+        let molecule : Molecule = Molecule::new(vec!["a", "b", "c", "d"]);
+        println!("{}", molecule.to_string());
         parse_mol("src/molecule/test_files/Pentanoic acid.mol");
     }
 }
