@@ -2,9 +2,10 @@
 import mol_swatter
 import os
 import time
-
+import matplotlib.pyplot as plt
 
 DATA_DIR = "../scraper/raw_data/"
+
 
 def demonstrate_spectrum_parser(file_path):
     spectrum = mol_swatter.Spectrum(file_path)
@@ -14,6 +15,7 @@ def demonstrate_spectrum_parser(file_path):
     print(spectrum.to_string())
     new_spectrum = spectrum.transform(800, 3000, 1000)
     print(new_spectrum.to_string())
+
 
 def iterate_over_files(file_extension, funct):
     cntr = 0
@@ -44,10 +46,8 @@ def iterate_over_files(file_extension, funct):
     print("Processed {} files at an average of {} ms per file".format(cntr, avr_time))
     print("Longest file was {} at {} ms".format(longest_time_mol, longest_time))
 
-
-
-## Mol Parser Demonstration
-
+# ----- Mol Parser Demonstration -----
+input("Press enter to continue, The script will parse through all .mol files in the DATA_DIR")
 # Requires mol_swatter.so in the same directory
 myParser = mol_swatter.ParseGroups()
 
@@ -63,7 +63,21 @@ myParser.get_funct_result_and_print(DATA_DIR + "Styrene, oligomers.mol")
 # Bulk process of the mol files in DATA_DIR
 iterate_over_files(".mol", myParser.get_funct_result_and_print)
 
-input("Press enter to continue")
+# ----- Spectrum Parser Demonstration -----
+input(
+    """Press enter to continue, the script will
+show the data transform methods of the .jdx spectra""")
+spectrum = mol_swatter.Spectrum(DATA_DIR + "Water.jdx")
+print(spectrum.to_string())
+x = spectrum.get_x_values()
+y = spectrum.get_y_values()
+plt.plot(x, y)
+ax = plt.gca()
+ax.set_xlim(ax.get_xlim()[::-1])
+plt.show()
+input(
+    """Press enter to continue, the script will 
+parse through all of the .jdx spectra in the DATA_DIR and 
+perform a single transformation on each.""")
 
-## Spectrum Parser Demonstration
 iterate_over_files(".jdx", demonstrate_spectrum_parser)
