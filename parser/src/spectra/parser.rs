@@ -3,9 +3,7 @@
  *
  **/
 
-use nom::{
-    IResult,
-};
+use nom::IResult;
 
 use crate::parser_common::common::*;
 use crate::debug_println;
@@ -154,8 +152,6 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
     if is_next_char_x(not_numeric, '+') {
         delimiter = "+\n";
     }
-
-
     // Parses until reaching the ##END
     loop {
 

@@ -97,10 +97,8 @@ impl Spectrum {
     // Generates and returns all of the x values
     pub fn get_x_values(&self) -> Vec<f32> {
         let mut out : Vec<f32> = Vec::new();
-        let mut curr_x = self.first_x;
-        while curr_x <= self.last_x {
-            out.push(curr_x);
-            curr_x += self.delta_x;
+        for count in 0..self.npoints {
+            out.push(count as f32 * self.delta_x + self.first_x); 
         }
         out
     }
@@ -157,7 +155,7 @@ impl Spectrum {
 
     // Checks the last index of x to see if the spectrum has been fully filled with y values
     pub fn is_complete(&self) -> bool {
-        if self.npoints as usize == self.y_values.len(){
+        if self.npoints as usize == self.y_values.len() {
             return true
         } else {
             return false
@@ -248,6 +246,8 @@ mod tests {
     fn test_big_transform() {
         // Creates a spectrum of 388.677 to 3799.46 by 0.870985
         let spectrum = get_spectrum("Water.jdx");
+        assert!(spectrum.is_complete());
+        assert_eq!(spectrum.get_x_values().len(), spectrum.get_y_values().len());
         let transformed_spectrum = spectrum.transform(100.0, 1000.0, 10);
         println!("{}", transformed_spectrum.to_string());
         transformed_spectrum.print_xy();

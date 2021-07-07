@@ -46,6 +46,7 @@ def iterate_over_files(file_extension, funct):
     print("Processed {} files at an average of {} ms per file".format(cntr, avr_time))
     print("Longest file was {} at {} ms".format(longest_time_mol, longest_time))
 
+
 # ----- Mol Parser Demonstration -----
 input("Press enter to continue, The script will parse through all .mol files in the DATA_DIR")
 # Requires mol_swatter.so in the same directory
@@ -67,15 +68,32 @@ iterate_over_files(".mol", myParser.get_funct_result_and_print)
 input(
     """Press enter to continue, the script will
 show the data transform methods of the .jdx spectra""")
+
+
+def plot(spectrum):
+    x = spectrum.get_x_values()
+    y = spectrum.get_y_values()
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.set_xlim(ax.get_xlim()[::-1])
+    plt.show()
+
+
+def transform_and_plot(spectrum, size):
+    spectrum = spectrum.transform(100, 1000, size)
+    print(spectrum.to_string())
+    plot(spectrum)
+
+
 spectrum = mol_swatter.Spectrum(DATA_DIR + "Water.jdx")
-spectrum = spectrum.transform(100, 1000, 10)
 print(spectrum.to_string())
-x = spectrum.get_x_values()
-y = spectrum.get_y_values()
-plt.plot(x, y)
-ax = plt.gca()
-ax.set_xlim(ax.get_xlim()[::-1])
-plt.show()
+plot(spectrum)
+transform_and_plot(spectrum, 100)
+transform_and_plot(spectrum, 50)
+transform_and_plot(spectrum, 20)
+transform_and_plot(spectrum, 10)
+
+
 input(
     """Press enter to continue, the script will 
 parse through all of the .jdx spectra in the DATA_DIR and 
