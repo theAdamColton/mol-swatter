@@ -97,7 +97,7 @@ impl Spectrum {
     // Generates and returns all of the x values
     pub fn get_x_values(&self) -> Vec<f32> {
         let mut out : Vec<f32> = Vec::new();
-        for count in 0..self.npoints {
+        for count in 0..self.y_values.len() {
             out.push(count as f32 * self.delta_x + self.first_x); 
         }
         out
