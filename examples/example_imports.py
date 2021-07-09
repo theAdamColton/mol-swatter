@@ -80,7 +80,7 @@ def plot(spectrum):
 
 
 def transform_and_plot(spectrum, size):
-    spectrum = spectrum.transform(100, 1000, size)
+    spectrum = spectrum.transform(400, 3700, size)
     print(spectrum.to_string())
     plot(spectrum)
 
@@ -92,6 +92,7 @@ transform_and_plot(spectrum, 100)
 transform_and_plot(spectrum, 50)
 transform_and_plot(spectrum, 20)
 transform_and_plot(spectrum, 10)
+transform_and_plot(spectrum, 2)
 
 
 input(
