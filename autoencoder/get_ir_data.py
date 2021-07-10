@@ -8,7 +8,7 @@ import mol_swatter
 import os
 
 
-def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=0.0):
+def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=1.5):
     """
     Get a ndarray from the spectral data from
     all .jdx files in the given dir.
@@ -22,7 +22,6 @@ def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=0.0):
     Returns a tuple:
         (x_train, x_test)
     """
-    assert training_data == 0, "training ratio is not implemented"
     data = None
     # Calls .__add_ndarry_to_data on each jdx file in the directory
     for filename in os.listdir(directory):
