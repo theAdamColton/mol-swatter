@@ -14,6 +14,7 @@ class Autoencoder(Model):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         # Encoder uses a singe dense layer to encode and decode
+        print("Input_dim {}".format(input_dim))
         input_layer = keras.Input(shape=input_dim)
         encoded = layers.Dense(latent_dim, activation="relu")(input_layer)
         decoded = layers.Dense(input_dim, activation="sigmoid")(encoded)
