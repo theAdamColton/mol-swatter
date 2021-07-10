@@ -3,6 +3,7 @@ Runs the autoencoder
 """
 
 import sys
+import os
 from models.autoencoder import Autoencoder
 import argparse
 import constants
@@ -38,8 +39,11 @@ class Run:
         xtrain = data[0]
         xtest = data[1]
         print(xtrain)
-        self.model.load(xtrain, xtest)
+        self.model.load(xtrain, xtest, self.args.firstx, self.args.lastx)
         self.model.summary()
+        if self.args.test:
+            self.model.test()
+            return
         while True:
             self.model.train(self.args.batchsize, self.args.epochs)
             self.model.save_model()
@@ -60,6 +64,7 @@ class Run:
         parser.add_argument("--epochs", "-e", default=10000, type=int)
         parser.add_argument("--load", action="store_true", help="Should load")
         parser.add_argument("--training_points", default=100, type=int, help="Number of training points")
+        parser.add_argument("--test", action="store_true")
         return parser
 
 if __name__ == "__main__":
