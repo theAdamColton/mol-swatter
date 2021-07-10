@@ -2,89 +2,77 @@
 in a directory"""
 
 import numpy as np
-import mol_swatter
+import mol_swatter # Requires mol_swatter in this dir
 import os
 
 
-class Get_IRData:
+def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=0.0):
     """
-    Getter for converting the spectral data in .jdx files into a huge ndarray
+    Get a ndarray from the spectral data from
+    all .jdx files in the given dir.
+
+    first_x and last_x specify the range of the wavelength in cm-1
+
+    dimensions specifies the number of data points
+
+    x_test can be specified as a ratio of files to be
+        picked as training data.
+    Returns a tuple:
+        (x_train, x_test)
     """
-
-    def __init__(self, directory, first_x, last_x, dimensions):
-        self.directory = directory
-        self.first_x = first_x
-        self.last_x = last_x
-        self.dimensions = dimensions
-
-    def get_ir_data(self, training_data=0.0):
-        """
-        Get a ndarray from the spectral data from
-        all .jdx files in the given dir.
-
-        first_x and last_x specify the range of the wavelength in cm-1
-
-        dimensions specifies the number of data points
-
-        x_test can be specified as a ratio of files to be
-            picked as training data.
-        Returns a tuple:
-            (x_train, x_test)
-        """
-        assert training_data == 0, "training ratio is not implemented"
-        self.data = np.ndarray(shape=(0,))
-        # Calls self.__add_ndarry_to_data on each jdx file in the directory
-        iterate_over_files(self.directory, ".jdx", self.__add_jdx_to_data)
-
-        nfiles = self.data.ndim
-        print(
-            "IR spectrum from {} to {} by {}, for {} files".format(
-                self.first_x, self.last_x, self.dimensions, nfiles
-            )
-        )
-
-        return self.data
-
-    def __add_jdx_to_data(self, filepath):
-        new_array = self.__get_ndarray_from_jdx(filepath)
-        # If the file was invalid
-        if new_array is None:
-            return
-        self.__add_ndarry_to_data(new_array)
-
-    def __add_ndarry_to_data(self, new_array):
-        # Initializes self.data for the first array to be added
-        if self.data.size == 0:
-            self.data = np.array([new_array])
-            return
-        elif self.data.ndim == 1:
-            assert self.data.size == new_array.size
-        elif self.data.ndim > 1:
-            assert self.data[-1].size == new_array.size, "{} is not {}".format(
-                self.data[-1].size, new_array.size
-            )
-        # Appends the new array
-        self.data = np.append(self.data, [new_array], axis=0)
-
-    def __get_ndarray_from_jdx(self, filepath):
-        spectrum = mol_swatter.Spectrum(filepath)
-        if not spectrum.is_valid():
-            print("Invalid spectrum : " + filepath)
-            return
-        spectrum = spectrum.transform(self.first_x, self.last_x, self.dimensions)
-        y_values = spectrum.get_y_values()
-        assert len(y_values) == self.dimensions
-        return np.array(y_values)
-
-
-def iterate_over_files(directory, extension, funct):
+    assert training_data == 0, "training ratio is not implemented"
+    data = None
+    # Calls .__add_ndarry_to_data on each jdx file in the directory
     for filename in os.listdir(directory):
-        if filename.endswith(extension):
-            file_path = os.path.join(directory, filename)
-            funct(file_path)
+        if filename.endswith(".jdx"):
+            filename = os.path.join(directory, filename)
+            res = __add_jdx_to_data(filename, first_x, last_x, dimensions, data)
+            if res is not None:
+                data = res
+
+    nfiles = data.shape[0]
+    print(
+        "IR spectrum data from {} to {} by {}, for {} files".format(
+            first_x, last_x, dimensions, nfiles
+        )
+    )
+    return data
+
+
+def __add_jdx_to_data(filepath, first_x, last_x, dimensions, data):
+    new_array = __get_ndarray_from_jdx(filepath, first_x, last_x, dimensions)
+    # If the file was invalid
+    if new_array is None:
+        return
+    return __add_ndarry_to_data(new_array, data)
+
+
+def __add_ndarry_to_data(new_array, data):
+    # Initializes .data for the first array to be added
+    if data is None:
+        data = np.array([new_array])
+    elif data.ndim == 1:
+        assert data.size == new_array.size
+    elif data.ndim > 1:
+        assert data[-1].size == new_array.size, "{} is not {}".format(
+            data[-1].size, new_array.size
+        )
+    # Appends the new array
+    data = np.append(data, [new_array], axis=0)
+    return data
+
+
+def __get_ndarray_from_jdx(filepath, first_x, last_x, dimensions):
+    spectrum = mol_swatter.Spectrum(filepath)
+    if not spectrum.is_valid():
+        print("Invalid spectrum : " + filepath)
+        return
+    spectrum = spectrum.transform(first_x, last_x, dimensions)
+    y_values = spectrum.get_y_values()
+    assert len(y_values) == dimensions
+    return np.array(y_values)
 
 
 if __name__ == "__main__":
     """For testing"""
-    getter = Get_IRData("../scraper/raw_data", 800, 3000, 128)
-    data = getter.get_ir_data()
+    data = get_ir_data("../scraper/raw_data", 800, 3000, 128)

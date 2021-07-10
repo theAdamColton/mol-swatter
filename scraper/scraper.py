@@ -64,9 +64,9 @@ def scrape(url, max_mass):
         logging.warning("failed to find finalSize :" + str(e))
         return
     logging.info("Final_size set to : " + str(final_mass))
+    save_progress(final_mass)
     parseSearchBody(soup, url)
     # Once this search page has been fully scraped, saves max_size
-    save_progress(final_mass)
     scrape(get_url(final_mass, max_mass), max_mass)
 
 def parseSearchBody(soup, url):

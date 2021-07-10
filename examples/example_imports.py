@@ -1,4 +1,6 @@
 # This python file demonstrates importing and basic use of the rust mol_getter lib
+import sys
+sys.path.append("../bin/")
 import mol_swatter
 import os
 import time
@@ -14,6 +16,7 @@ def demonstrate_spectrum_parser(file_path):
         return
     print(spectrum.to_string())
     new_spectrum = spectrum.transform(800, 3000, 1000)
+    print(str(new_spectrum.get_y_values)[0:20])
     print(new_spectrum.to_string())
 
 
@@ -33,8 +36,7 @@ def iterate_over_files(file_extension, funct):
             funct(file_path)
 
             cntr += 1
-
-            end = time.time()*1000 - start
+            end = time.time() * 1000 - start
             if end > longest_time:
                 longest_time = end
                 longest_time_mol = filename
@@ -48,8 +50,9 @@ def iterate_over_files(file_extension, funct):
 
 
 # ----- Mol Parser Demonstration -----
-input("Press enter to continue, The script will parse through all .mol files in the DATA_DIR")
-# Requires mol_swatter.so in the same directory
+input(
+    "Press enter to continue, The script will parse through all .mol files in the DATA_DIR"
+)
 myParser = mol_swatter.ParseGroups()
 
 # Prints out the list of functional groups mol_getter is using
@@ -67,7 +70,8 @@ iterate_over_files(".mol", myParser.get_funct_result_and_print)
 # ----- Spectrum Parser Demonstration -----
 input(
     """Press enter to continue, the script will
-show the data transform methods of the .jdx spectra""")
+show the data transform methods of the .jdx spectra"""
+)
 
 
 def plot(spectrum):
@@ -98,6 +102,7 @@ transform_and_plot(spectrum, 2)
 input(
     """Press enter to continue, the script will 
 parse through all of the .jdx spectra in the DATA_DIR and 
-perform a single transformation on each.""")
+perform a single transformation on each."""
+)
 
 iterate_over_files(".jdx", demonstrate_spectrum_parser)
