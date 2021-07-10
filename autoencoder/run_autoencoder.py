@@ -22,21 +22,23 @@ class Run:
         self.__run_encoder()
 
     def __run_encoder(self):
-        data = get_ir_data.get(
-            self.args.data_dir,
-            self.args.firstx,
-            self.args.lastx,
-            self.args.input_dim,
-        )
         if self.args.load:
             res = self.model.load_model()
             if res is not None:
                 self.__construct_model()
         else:
             self.__construct_model()
+        data = get_ir_data.get(
+            self.args.data_dir,
+            self.args.firstx,
+            self.args.lastx,
+            self.args.input_dim,
+            self.args.training_points
+        )
         xtrain = data[0]
+        xtest = data[1]
         print(xtrain)
-        self.model.load(xtrain)
+        self.model.load(xtrain, xtest)
         self.model.summary()
         while True:
             self.model.train(self.args.batchsize, self.args.epochs)
@@ -55,8 +57,9 @@ class Run:
         parser.add_argument("--latent_dim", default=64, type=int)
         parser.add_argument("--firstx", default=800, type=int)
         parser.add_argument("--lastx", default=3000, type=int)
-        parser.add_argument("--epochs", default=10000, type=int)
-        parser.add_argument("--load", action="store_true")
+        parser.add_argument("--epochs", "-e", default=10000, type=int)
+        parser.add_argument("--load", action="store_true", help="Should load")
+        parser.add_argument("--training_points", default=100, type=int, help="Number of training points")
         return parser
 
 if __name__ == "__main__":

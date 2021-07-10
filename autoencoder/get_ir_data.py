@@ -8,7 +8,7 @@ import mol_swatter
 import os
 
 
-def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=1.5):
+def get(directory, first_x=800, last_x=3000, dimensions=256, training_points=200):
     """
     Get a ndarray from the spectral data from
     all .jdx files in the given dir.
@@ -21,24 +21,39 @@ def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=1.5):
         picked as training data.
     Returns a tuple:
         (x_train, x_test)
+
+    By default, the first 200 files are added to the training data
     """
     data = None
+    training_data = None
+    training_count = 0
     # Calls .__add_ndarry_to_data on each jdx file in the directory
     for filename in os.listdir(directory):
         if filename.endswith(".jdx"):
             filename = os.path.join(directory, filename)
-            res = __add_jdx_to_data(filename, first_x, last_x, dimensions, data)
-            if res is not None:
-                data = res
+            is_training_file = False
+            if training_count < training_points:
+                obj = training_data
+                is_training_file = True
+            else:
+                obj = data
 
-    nfiles = data.shape[0]
+            res = __add_jdx_to_data(filename, first_x, last_x, dimensions, obj)
+            if res is not None:
+                if is_training_file:
+                    training_data = res
+                    training_count += 1
+                else:
+                    data = res
+
+    nfiles = data.shape[0] + training_data.shape[0]
     print(
         "IR spectrum data from {} to {} by {}, for {} files".format(
             first_x, last_x, dimensions, nfiles
         )
     )
     # The tuple is for when the testing data is implemented
-    return (data,)
+    return (data, training_data)
 
 
 def __add_jdx_to_data(filepath, first_x, last_x, dimensions, data):

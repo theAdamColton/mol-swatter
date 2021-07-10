@@ -35,6 +35,7 @@ class Autoencoder(Model):
             batch_size=batch_size,
             shuffle=True,
             epochs=epochs,
+            validation_data=(self.x_test, self.x_test)
         )
 
     

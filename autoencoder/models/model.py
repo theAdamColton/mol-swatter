@@ -33,6 +33,15 @@ class Model:
         self.x_train = x_train
         self.x_test = x_test
 
+    def test_model(self):
+        """Models may have to provide their own definitions"""
+        input_layer = self.autoencoder.layers[0]
+        middle_layer = self.autoencoder.layers[1]
+        output_layer = self.autoencoder.layers[-1]
+        encoder = keras.Model(input_layer, middle_layer)
+        decoder = keras.Model(middle_layer, output_layer)
+
+
     def summary(self):
         print("*********SUMMARY************")
         print("*******AUTOENCODER********")
