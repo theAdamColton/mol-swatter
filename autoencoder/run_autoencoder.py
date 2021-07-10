@@ -29,6 +29,7 @@ class Run:
                 self.__construct_model()
         else:
             self.__construct_model()
+        print("******getting data********")
         data = get_ir_data.get(
             self.args.data_dir,
             self.args.firstx,
@@ -42,7 +43,7 @@ class Run:
         self.model.load(xtrain, xtest, self.args.firstx, self.args.lastx)
         self.model.summary()
         if self.args.test:
-            self.model.test()
+            self.model.test_model()
             return
         while True:
             self.model.train(self.args.batchsize, self.args.epochs)

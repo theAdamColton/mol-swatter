@@ -67,7 +67,7 @@ class Model:
         """Models should not privide their own definition"""
         xmin = self.__m_conf.get('startx')
         xmax = self.__m_conf.get('lastx')
-        npoints = self.autoencoder[0].input.shape[0]
+        npoints = self.autoencoder.layers[0].input.shape[1]
         n = 10
         for i in range(n):
             print("plotting test vector")
@@ -77,11 +77,16 @@ class Model:
 
     def __run_test(self):
         """Models may have to provide their own definitions"""
-        input_layer = self.autoencoder.layers[0]
-        middle_layer = self.autoencoder.layers[1]
-        output_layer = self.autoencoder.layers[-1]
-        encoder = keras.Model(input_layer, middle_layer)
-        decoder = keras.Model(middle_layer, output_layer)
+        # Defines encoder
+        input_dim = self.autoencoder.layers[0].input.shape[1]
+        input_layer = keras.Input(shape=(input_dim, ))
+        encoded = self.autoencoder.layers[1]
+        encoder = keras.Model(input_layer, encoded(input_layer))
+        # Defines decoder
+        input_dim = self.autoencoder.layers[1].output.shape[1]
+        input_layer = keras.Input(shape=(input_dim, ))
+        decoded = self.autoencoder.layers[-1]
+        decoder = keras.Model(input_layer, decoded(input_layer))
         return (encoder, decoder)
 
     def summary(self):

@@ -17,5 +17,5 @@ def __gen_x_vals(x_min, x_max, npoints):
     curr_x = x_min
     while x_values.size < npoints:
         curr_x += delta_x
-        np.append(x_values, curr_x)
+        x_values = np.append(x_values, curr_x)
     return x_values
