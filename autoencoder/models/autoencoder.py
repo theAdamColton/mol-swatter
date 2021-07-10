@@ -1,12 +1,13 @@
 import keras
 from keras import layers
 import numpy as np
+from model import Model
 
-""" Simple autoencoder """
 
-
-class Autoencoder:
+class Autoencoder(Model):
+    """Simple autoencoder"""
     def __init__(self, input_dim, latent_dim):
+        """Constructs self.model"""
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         # Encoder uses a singe dense layer to encode and decode
@@ -24,30 +25,16 @@ class Autoencoder:
 
         self.autoencoder.compile(optimizer="adadelta", loss="binary_crossentropy")
 
-    """ Load the training and testing data into this class,
-        data should be normalized between 0 and 1
-        and should be a vector of dim input_dim"""
-
-    def load(self, x_train, x_test=None):
-        assert x_train.shape[1] == self.input_dim
-        self.x_train = x_train
-        self.x_test = x_test
-
     def train(self, batch_size=128, epochs=-1):
         self.autoencoder.fit(
-            self.x_train, self.x_train, batch_size=batch_size, shuffle=True, epochs=epochs,
+            self.x_train,
+            self.x_train,
+            batch_size=batch_size,
+            shuffle=True,
+            epochs=epochs,
         )
 
-    def summary(self):
-        print("*********SUMMARY************")
-        print("*******AUTOENCODER********")
-        self.autoencoder.summary()
-        print("\n*******ENCODER************")
-        self.encoder.summary()
-        print("\n*******DECODER************")
-        self.decoder.summary()
-
-
+    
 "Tests this class"
 if __name__ == "__main__":
     autoencoder = Autoencoder((128), 20)
