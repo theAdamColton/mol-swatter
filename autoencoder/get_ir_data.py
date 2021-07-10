@@ -7,6 +7,10 @@ import os
 
 
 class Get_IRData:
+    """
+    Getter for converting the spectral data in .jdx files into a huge ndarray
+    """
+
     def __init__(self, directory, first_x, last_x, dimensions):
         self.directory = directory
         self.first_x = first_x
@@ -27,21 +31,40 @@ class Get_IRData:
         Returns a tuple:
             (x_train, x_test)
         """
-        self.data = np.ndarray(shape=(self.dimensions,))
+        assert training_data == 0, "training ratio is not implemented"
+        self.data = np.ndarray(shape=(0,))
         # Calls self.__add_ndarry_to_data on each jdx file in the directory
-        __iterate_over_files(self.directory, ".jdx", self.__add_ndarry_to_data)
+        iterate_over_files(self.directory, ".jdx", self.__add_jdx_to_data)
 
         nfiles = self.data.ndim
-        print("IR spectrum from {} to {} by {}, for {} files".format(self.first_x, self.last_x, self.dimensions, nfiles))
+        print(
+            "IR spectrum from {} to {} by {}, for {} files".format(
+                self.first_x, self.last_x, self.dimensions, nfiles
+            )
+        )
 
         return self.data
 
     def __add_jdx_to_data(self, filepath):
         new_array = self.__get_ndarray_from_jdx(filepath)
+        # If the file was invalid
+        if new_array is None:
+            return
         self.__add_ndarry_to_data(new_array)
 
     def __add_ndarry_to_data(self, new_array):
-        self.data = np.stack(self.data, new_array)
+        # Initializes self.data for the first array to be added
+        if self.data.size == 0:
+            self.data = np.array([new_array])
+            return
+        elif self.data.ndim == 1:
+            assert self.data.size == new_array.size
+        elif self.data.ndim > 1:
+            assert self.data[-1].size == new_array.size, "{} is not {}".format(
+                self.data[-1].size, new_array.size
+            )
+        # Appends the new array
+        self.data = np.append(self.data, [new_array], axis=0)
 
     def __get_ndarray_from_jdx(self, filepath):
         spectrum = mol_swatter.Spectrum(filepath)
@@ -50,17 +73,18 @@ class Get_IRData:
             return
         spectrum = spectrum.transform(self.first_x, self.last_x, self.dimensions)
         y_values = spectrum.get_y_values()
-        assert y_values.len() == self.dimensions
+        assert len(y_values) == self.dimensions
         return np.array(y_values)
 
 
-def __iterate_over_files(directory, extension, funct):
+def iterate_over_files(directory, extension, funct):
     for filename in os.listdir(directory):
         if filename.endswith(extension):
             file_path = os.path.join(directory, filename)
             funct(file_path)
 
 
-"""For testing"""
-getter = Get_IRData("../scraper/raw_data", 800, 3000, 128)
-data = getter.get_ir_data()
+if __name__ == "__main__":
+    """For testing"""
+    getter = Get_IRData("../scraper/raw_data", 800, 3000, 128)
+    data = getter.get_ir_data()
