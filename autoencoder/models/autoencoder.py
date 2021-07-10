@@ -33,9 +33,9 @@ class Autoencoder:
         self.x_train = x_train
         self.x_test = x_test
 
-    def train(self, batch_size=128):
+    def train(self, batch_size=128, epochs=-1):
         self.autoencoder.fit(
-            self.x_train, self.x_train, batch_size=batch_size, shuffle=True
+            self.x_train, self.x_train, batch_size=batch_size, shuffle=True, epochs=epochs,
         )
 
     def summary(self):
