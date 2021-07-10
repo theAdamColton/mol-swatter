@@ -1,8 +1,10 @@
 """Generates numpy ndarrays for IR spectral data parsed from .jdx files
 in a directory"""
-
+import sys
+import constants
+sys.path.append(constants.BIN_DIR)
 import numpy as np
-import mol_swatter # Requires mol_swatter in this dir
+import mol_swatter
 import os
 
 
@@ -36,7 +38,8 @@ def get(directory, first_x=800, last_x=3000, dimensions=256, training_data=0.0):
             first_x, last_x, dimensions, nfiles
         )
     )
-    return data
+    # The tuple is for when the testing data is implemented
+    return (data,)
 
 
 def __add_jdx_to_data(filepath, first_x, last_x, dimensions, data):
@@ -75,4 +78,4 @@ def __get_ndarray_from_jdx(filepath, first_x, last_x, dimensions):
 
 if __name__ == "__main__":
     """For testing"""
-    data = get_ir_data("../scraper/raw_data", 800, 3000, 128)
+    data = get("../scraper/raw_data", 800, 3000, 128)

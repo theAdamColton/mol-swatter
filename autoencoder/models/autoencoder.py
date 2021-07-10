@@ -29,7 +29,7 @@ class Autoencoder:
         and should be a vector of dim input_dim"""
 
     def load(self, x_train, x_test=None):
-        assert x_train.len() == self.input_dim.len()
+        assert x_train.shape[1] == self.input_dim
         self.x_train = x_train
         self.x_test = x_test
 
@@ -49,5 +49,6 @@ class Autoencoder:
 
 
 "Tests this class"
-autoencoder = Autoencoder((128), 20)
-autoencoder.summary()
+if __name__ == "__main__":
+    autoencoder = Autoencoder((128), 20)
+    autoencoder.summary()
