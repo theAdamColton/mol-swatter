@@ -1,12 +1,15 @@
 import keras
 from keras import layers
 import numpy as np
+# TODO pull my hair out over imports
+import sys
+sys.path.append("./models/")
 from model import Model
 
 
 class Autoencoder(Model):
     """Simple autoencoder"""
-    def __init__(self, input_dim, latent_dim):
+    def construct_model(self, input_dim, latent_dim):
         """Constructs self.model"""
         self.input_dim = input_dim
         self.latent_dim = latent_dim
