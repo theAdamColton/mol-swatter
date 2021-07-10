@@ -10,6 +10,7 @@ use crate::debug_println;
 use crate::constants::*;
 
 use super::spectrum::Spectrum;
+use super::spectrum::Xunits;
 
 // Parses through the header until reaching the desired field.
 // This assumes that the field is actually in the header.
@@ -17,7 +18,6 @@ fn parse_until_field<'a>(i : &'a str, field : &'a str) -> IResult<&'a str, &'a s
     let mut out = i; 
     loop {
         // If the next char is numeric, it means this parser has failed to find the field
-        // TODO improve imports
         if is_next_tag_x(out, "##XYDATA=") && field != "XYDATA"{
             return Err(nom::Err::Error(nom::error::Error{ input : out, code : nom::error::ErrorKind::Not}));
         }
@@ -117,8 +117,16 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
         let (file, title) = get_field_or_default(file, "TITLE", "UNKNOWN TITLE");
         let (file, spectrum_type) = get_field_or_default(file, "DATA TYPE", "UNKNOWN TYPE");
         let (file, state) = get_field_or_default(file, "STATE", "UNKNOWN STATE");
-        
         debug_println!("{}, {}, {}", title, spectrum_type, state);
+
+        let (file, xunits_str) = get_field_or_default(file, "XUNITS", "1/CM");
+        let mut xunits : Xunits = Xunits::cm;
+        // Sets xunits to one of the possibilities in the Xunits enum
+        if xunits_str == "MICROMETERS" {
+            xunits = Xunits::um;
+        } else {
+            xunits = Xunits::cm;
+        }
 
         let (file, y_factor) = get_field_or_default(file, "YFACTOR", "1");
         let y_factor : f32 = y_factor.parse::<f32>().unwrap_or(1.0);
@@ -136,7 +144,7 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
         let npoints : i32 = npoints.parse::<i32>().unwrap();
         debug_println!("npoints {}", npoints);
 
-        let mut spec = Spectrum::new(title, spectrum_type, state, first_x, last_x, npoints);
+        let mut spec = Spectrum::new(title, spectrum_type, state, xunits, first_x, last_x, npoints);
         spec.set_y_factor(y_factor);
 
         (file, spec)
@@ -222,15 +230,13 @@ mod tests {
         assert_eq!(res.1, "H2 O");
     }
     #[test]
-    fn test_parse_jdx() {
-        test_parser("Water.jdx");
-        
-    }
-    #[test]
-    fn test_non_utf8() {
-        // This file contains non UTF-8
-        // let spec = parse_jdx(&(TEST_DIR.to_string() + "sodium chloride.jdx")).unwrap();
-        // println!("{}", spec.to_string());
+    fn test_xunits_file() {
+        // This file contains um xunits 
+        let mut spectrum = test_parser("2,4-Pentadienenitrile.jdx");
+        spectrum = spectrum.transform(1000.0, 2000.0, 10);
+        // If this equates to true, it means the spectrum is not converting to 1/cm units
+        assert!(spectrum.get_y_values()[0] != -1.0);
+        spectrum = test_parser("Water.jdx");
     }
     #[test]
     fn test_funky_file() {

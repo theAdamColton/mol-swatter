@@ -2,6 +2,13 @@
  * Contains the spectrum struct and methods, which contains the pertinent information we want to parse from the jcamp file.
  **/
 
+// Handles whether the Xunits are 1/cm or 1/um
+#[derive(Copy, Clone)]
+pub enum Xunits {
+    cm,
+    um,
+}
+
 pub struct Spectrum {
     // ex : "WATER"
     name : String,
@@ -9,7 +16,7 @@ pub struct Spectrum {
     spectrum_type : String,
     // ex : "LIQUID (NEAT)"
     state : String,
-    // X is always in units of  / cm
+    // xunits can ONLY be cm
     // delta_x is very important, in each column of the XYDATA=(X++(Y..Y)), the Y values in each
     // column have their corresponding x values incremented by delta_x
     //
@@ -32,7 +39,7 @@ pub struct Spectrum {
 
 impl Spectrum {
     // Instantiate a new Spectrum with empty y_values vector
-    pub fn new(name : &str, spectrum_type : &str, state : &str, first_x : f32, last_x : f32, npoints : i32) -> Spectrum {
+    pub fn new(name : &str, spectrum_type : &str, state : &str, xunits : Xunits, first_x : f32, last_x : f32, npoints : i32) -> Spectrum {
         let (mut first_x, mut last_x) = (first_x, last_x);
         // Enforces that first_x is less than last_x
         if first_x > last_x {
@@ -40,6 +47,16 @@ impl Spectrum {
             first_x = last_x;
             last_x = temp;
         }
+        // Handles different xunit cases
+        match xunits {
+            Xunits::cm => {},
+            Xunits::um => {
+                let temp = first_x;
+                first_x = 10000.0 / last_x;
+                last_x = 10000.0 / temp;
+            }
+        }
+
         assert!(npoints > 1 );
         let delta_x : f32 = (last_x - first_x) / (npoints as f32 - 1.0);
         Spectrum {
@@ -74,7 +91,7 @@ impl Spectrum {
         let delta_x: f32 = (last_x - first_x) / (npoints as f32 - 1.0);
 
         let mut spec = Spectrum::new(
-            &self.name, &self.spectrum_type, &self.state, first_x, last_x, npoints); 
+            &self.name, &self.spectrum_type, &self.state, Xunits::cm, first_x, last_x, npoints); 
         // Iterate curr_x from first_x to last_x by delta_x
         let mut curr_x = first_x + delta_x;
         let mut prev_x = first_x;
@@ -153,6 +170,7 @@ impl Spectrum {
         }
     }
 
+
     // Checks the last index of x to see if the spectrum has been fully filled with y values
     pub fn is_complete(&self) -> bool {
         if self.npoints as usize == self.y_values.len() {
@@ -182,7 +200,7 @@ mod tests {
             y_values : vec![0.1, 0.2, 0.3, 0.4]
         };
 
-        let mut spectrum_2 = Spectrum::new("KRYPTONITE", "WAFER SPECTRUM", "PLASMA", 1.0, 4.0, 4);
+        let mut spectrum_2 = Spectrum::new("KRYPTONITE", "WAFER SPECTRUM", "PLASMA", Xunits::cm, 1.0, 4.0, 4);
         let to_add = vec!(0.1, 0.2, 0.3, 0.4);
         for y in to_add {
             spectrum_2.add_y(y);
@@ -193,7 +211,7 @@ mod tests {
     }
     #[test]
     fn test_private_methods() {
-        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", 4.0, 8.0, 3);
+        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, 4.0, 8.0, 3);
         assert_eq!(spectrum.is_complete(), false);
         spectrum.add_y(1.0);
         assert_eq!(spectrum.is_complete(), false);
@@ -226,7 +244,7 @@ mod tests {
     }
     #[test]
     fn test_transform_spectrum() {
-        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", 4.0, 8.0, 3);
+        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, 4.0, 8.0, 3);
         spectrum.add_y(1.0);
         spectrum.add_y(1.1);
         spectrum.add_y(1.2);
