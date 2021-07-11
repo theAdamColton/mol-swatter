@@ -18,7 +18,7 @@ scraper/logging/progress
 *.mol
 
 # save dir
-./autoencoder/saves/*
+autoencoder/saves/*
 
 # the data.tar
 scaper/data.tar
