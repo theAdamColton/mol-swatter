@@ -46,7 +46,10 @@ def get(directory, first_x=800, last_x=3000, dimensions=256, training_points=200
                 else:
                     data = res
 
-    nfiles = data.shape[0] + training_data.shape[0]
+    if training_data is not None:
+        nfiles = data.shape[0] + training_data.shape[0]
+    else:
+        nfiles = data.shape[0]
     print(
         "IR spectrum data from {} to {} by {}, for {} files".format(
             first_x, last_x, dimensions, nfiles
