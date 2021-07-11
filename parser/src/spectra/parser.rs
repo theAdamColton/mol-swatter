@@ -196,12 +196,14 @@ mod tests {
         let res = whitespace("  hello");
         println!("{}", res.unwrap().0);
     }
+
     #[test]
     fn test_parse_field() {
         let res = parse_field("##SUBJECT NAME=COOL BREEZE\n##MORE STUFF=NULL", "SUBJECT NAME", "##").unwrap();
         println!("{:?},\t {:?}", res.0, res.1);
         assert_eq!(res, ("##MORE STUFF=NULL", "COOL BREEZE"));
     }
+
     #[test]
     fn test_parse_xydata_line() {
         let res = parse_xydata_line("234.221345 0.4380 0.4380 0.4370 0.4370 0.4269\nTrampled under foot", None);
@@ -211,6 +213,7 @@ mod tests {
             assert_eq!(should_be[i], res_vec[i]);
         }
     }
+
     #[test]
     fn test_parse_delimited_line() {
         let res = parse_xydata_line("-42.1 420.69-18.2-12.1+13.5\nSomething else", None);
@@ -221,6 +224,7 @@ mod tests {
             assert_eq!(should_be[i], res_vec[i]);
         }
     }
+
     #[test]
     fn test_until_field() {
         let content = &read_file_to_string(&(TEST_DIR.to_string() + "Water.jdx")).unwrap();
@@ -229,27 +233,44 @@ mod tests {
         let res = parse_until_field(content, "MOLFORM").unwrap();
         assert_eq!(res.1, "H2 O");
     }
+
     #[test]
     fn test_xunits_file() {
         // This file contains um xunits 
         let mut spectrum = test_parser("2,4-Pentadienenitrile.jdx");
         spectrum = spectrum.transform(1000.0, 2000.0, 10);
+        println!("{}", spectrum.to_string());
+        print_xy(&spectrum);
         // If this equates to true, it means the spectrum is not converting to 1/cm units
         assert!(spectrum.get_y_values()[0] != -1.0);
         spectrum = test_parser("Water.jdx");
+        spectrum.transform(2000.0, 3000.0, 11);
+        assert!(spectrum.get_y_values()[3] != -1.0);
     }
+
     #[test]
     fn test_funky_file() {
         test_parser("Styrene, oligomers.jdx");
     }
+
     #[test]
     fn test_whack_files(){
         test_parser("Cumidine.jdx");
         test_parser("Ethane, pentafluoro-.jdx");
     }
+
     fn test_parser(filepath : &str) -> Spectrum {
         let spec = parse_jdx(&(TEST_DIR.to_string() + filepath)).unwrap();
         println!("{}", spec.to_string());
         spec
+    }
+
+    fn print_xy(spectrum : &Spectrum) {
+        let y_v = spectrum.get_y_values();
+        let x_v = spectrum.get_x_values();
+        for i in 0..x_v.len() {
+            print!("({},{} : {}), ", x_v[i], y_v[i], spectrum.f_of(x_v[i]));
+        }
+        println!("");
     }
 }

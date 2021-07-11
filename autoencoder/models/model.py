@@ -20,11 +20,11 @@ class Model:
         print("Class should implement this method!")
 
     def save_model(self, save_path=constants.MODEL_DIR):
-        self.autoencoder.save(save_path)
+        self.autoencoder.save(save_path + ".hdf5")
         self.__save_conf(save_path + "/conf.json")
 
     def load_model(self, load_path=constants.MODEL_DIR):
-        self.autoencoder = keras.models.load_model(load_path)
+        self.autoencoder = keras.models.load_model(load_path + ".hdf5")
         print("*******loaded model*******")
         assert self.__load_conf(load_path + "/conf.json")==None
 

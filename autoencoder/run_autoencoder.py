@@ -35,7 +35,7 @@ class Run:
             self.args.firstx,
             self.args.lastx,
             self.args.input_dim,
-            self.args.training_points
+            self.args.training_points,
         )
         xtrain = data[0]
         xtest = data[1]
@@ -46,12 +46,16 @@ class Run:
             self.model.test_model()
             return
         while True:
-            self.model.train(self.args.batchsize, self.args.epochs)
+            self.model.train(
+                self.args.batchsize, self.args.epochs, self.args.steps_per_epoch
+            )
             self.model.save_model()
             print("Finished Epoch")
 
     def __construct_model(self):
-        self.model.construct_model(self.args.input_dim, self.args.latent_dim)
+        self.model.construct_model(
+            self.args.input_dim, self.args.latent_dim, self.args.steps_per_exec
+        )
 
     def __get_arg_parser(self):
         parser = argparse.ArgumentParser(description="Run an autoencoder")
@@ -60,13 +64,31 @@ class Run:
         parser.add_argument("--data_dir", "-d", default=constants.DATA_DIR)
         parser.add_argument("--input_dim", default=128, type=int)
         parser.add_argument("--latent_dim", default=64, type=int)
-        parser.add_argument("--firstx", default=800, type=int)
-        parser.add_argument("--lastx", default=3000, type=int)
+        parser.add_argument(
+            "--firstx", default=800, type=int, help="Starting cm-1 for the IR spectrum"
+        )
+        parser.add_argument(
+            "--lastx",
+            default=3000,
+            type=int,
+            help="Final cm-1 wavelength for the IR spectrum data",
+        )
         parser.add_argument("--epochs", "-e", default=10000, type=int)
-        parser.add_argument("--load", action="store_true", help="Should load")
-        parser.add_argument("--training_points", default=100, type=int, help="Number of training points")
+        parser.add_argument(
+            "--load",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--training_points",
+            default=100,
+            type=int,
+            help="Number of training points to be taken from the beggining of the data",
+        )
         parser.add_argument("--test", action="store_true")
+        parser.add_argument("--steps_per_epoch", default=4000, type=int)
+        parser.add_argument("--steps_per_exec", type=int)
         return parser
+
 
 if __name__ == "__main__":
     Run(sys.argv[1:])
