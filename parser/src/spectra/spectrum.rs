@@ -83,7 +83,7 @@ impl Spectrum {
     pub fn add_y(&mut self, val : f32) {
         self.y_values.push(val * self.y_factor);            
     }
-
+ 
     // Fit this spectrum into a different shaped spectrum
     pub fn transform(&self, first_x : f32, last_x : f32, npoints : i32) -> Spectrum { 
         assert!(first_x < last_x);
@@ -166,7 +166,11 @@ impl Spectrum {
 
     // Get the nearest index of any x
     fn i_of(&self, x : f32) -> usize {
-        ((x - self.first_x) / self.delta_x).round() as usize
+        let i = ((x - self.first_x) / self.delta_x).round() as usize;
+        if i > self.npoints as usize{
+            return self.npoints as usize
+        }
+        i
     }
 
 
