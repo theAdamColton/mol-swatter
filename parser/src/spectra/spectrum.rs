@@ -141,7 +141,7 @@ impl Spectrum {
         let to_i = self.i_of(last_x);
         for i in from_i..to_i+1 {
             count+=1;
-            sum += self.y_values[i];
+            sum += self.f_of_i(i);
         }
         if count == 0 {
             return self.f_of(first_x)
@@ -150,18 +150,23 @@ impl Spectrum {
         }
     }
     
-    // Get the value of y at any x
-    pub fn f_of(&self, x : f32) -> f32 {
-        let index = self.i_of(x);
-        match self.y_values.get(index) {
+    // Get the y value of any i
+    // Pads with -1.0s
+    pub fn f_of_i(&self, i : usize) -> f32 {
+        match self.y_values.get(i) {
             Some(x) => {
                 return x.to_owned()
             }
-            // Pads with -1s
             None => {
                 return -1.0
             }
         }
+    }
+    
+    // Get the value of y at any x
+    pub fn f_of(&self, x : f32) -> f32 {
+        let index = self.i_of(x);
+        self.f_of_i(index)        
     }
 
     // Get the nearest index of any x
