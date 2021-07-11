@@ -10,7 +10,7 @@ from constants import DATA_DIR
 
 def test_get_ir_data():
     print("Benchmarking get_ir_data()")
-    benchmark(get, args=(DATA_DIR, 800, 3000, 256, 0))
+    res = benchmark(get, args=(DATA_DIR, 800, 3000, 256, 0))
 
 
 if __name__ == "__main__":

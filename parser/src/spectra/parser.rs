@@ -11,6 +11,7 @@ use crate::constants::*;
 
 use super::spectrum::Spectrum;
 use super::spectrum::Xunits;
+use super::spectrum::Yunits;
 
 // Parses through the header until reaching the desired field.
 // This assumes that the field is actually in the header.
@@ -128,6 +129,15 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
             xunits = Xunits::cm;
         }
 
+        let (file, yunits_str) = get_field_or_default(file, "YUNITS", "TRANSMITTACE");
+        let mut yunits : Yunits = Yunits::Absorbance;
+        if yunits_str == "ABSORBANCE" {
+            yunits = Yunits::Absorbance;
+        } else {
+            yunits = Yunits::Transmittance;
+        }
+
+
         let (file, y_factor) = get_field_or_default(file, "YFACTOR", "1");
         let y_factor : f32 = y_factor.parse::<f32>().unwrap_or(1.0);
         debug_println!("y_factor {}", y_factor);
@@ -144,7 +154,7 @@ pub fn parse_jdx(filepath : &str) -> Result<Spectrum, &str> {
         let npoints : i32 = npoints.parse::<i32>().unwrap();
         debug_println!("npoints {}", npoints);
 
-        let mut spec = Spectrum::new(title, spectrum_type, state, xunits, first_x, last_x, npoints);
+        let mut spec = Spectrum::new(title, spectrum_type, state, xunits, yunits, first_x, last_x, npoints);
         spec.set_y_factor(y_factor);
 
         (file, spec)

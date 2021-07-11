@@ -85,7 +85,7 @@ class Run:
             help="Number of training points to be taken from the beggining of the data",
         )
         parser.add_argument("--test", action="store_true")
-        parser.add_argument("--steps_per_epoch", default=4000, type=int)
+        parser.add_argument("--steps_per_epoch", type=int)
         parser.add_argument("--steps_per_exec", type=int)
         return parser
 

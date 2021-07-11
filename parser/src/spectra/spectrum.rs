@@ -12,6 +12,13 @@ pub enum Xunits {
     um,
 }
 
+// Handles whether the Yunits are Absorbance or Transmittance
+#[derive(Copy, Clone)]
+pub enum Yunits {
+    Absorbance,
+    Transmittance,
+}
+
 pub struct Spectrum {
     // ex : "WATER"
     name : String,
@@ -20,6 +27,8 @@ pub struct Spectrum {
     // ex : "LIQUID (NEAT)"
     state : String,
     // xunits can ONLY be cm
+    // yunits are enum Yunits
+    yunits : Yunits,
     // delta_x is very important, in each column of the XYDATA=(X++(Y..Y)), the Y values in each
     // column have their corresponding x values incremented by delta_x
     //
@@ -42,7 +51,16 @@ pub struct Spectrum {
 
 impl Spectrum {
     // Instantiate a new Spectrum with empty y_values vector
-    pub fn new(name : &str, spectrum_type : &str, state : &str, xunits : Xunits, first_x : f32, last_x : f32, npoints : i32) -> Spectrum {
+    pub fn new(
+        name : &str,
+        spectrum_type : &str,
+        state : &str,
+        xunits : Xunits,
+        yunits : Yunits,
+        first_x : f32,
+        last_x : f32,
+        npoints : i32
+        ) -> Spectrum {
         let (mut first_x, mut last_x) = (first_x, last_x);
         // Enforces that first_x is less than last_x
         if first_x > last_x {
@@ -66,6 +84,7 @@ impl Spectrum {
             name : name.to_string(),
             spectrum_type : spectrum_type.to_string(),
             state : state.to_string(),
+            yunits,
             delta_x,
             npoints,
             first_x,
@@ -81,7 +100,14 @@ impl Spectrum {
     
     // Add a single y value to the Spectra
     pub fn add_y(&mut self, val : f32) {
-        self.y_values.push(val * self.y_factor);            
+        match self.yunits {
+            Yunits::Transmittance => {
+                self.y_values.push(val * self.y_factor);            
+            }
+            Yunits::Absorbance => {
+                self.y_values.push(1.0 - val * self.y_factor);
+            }
+        }
     }
  
     // Fit this spectrum into a different shaped spectrum
@@ -92,7 +118,7 @@ impl Spectrum {
         // Can only have positive non-zero number of npoints
         assert!(npoints > 1);
         let mut spec = Spectrum::new(
-            &self.name, &self.spectrum_type, &self.state, Xunits::cm, first_x, last_x, npoints); 
+            &self.name, &self.spectrum_type, &self.state, Xunits::cm, Yunits::Transmittance, first_x, last_x, npoints); 
         let delta_x: f32 = (last_x - first_x) / (npoints as f32);
         // Iterate curr_x from first_x to last_x by delta_x
         for i in 1..npoints + 1 {
@@ -201,6 +227,7 @@ mod tests {
             name : "KRYPTONITE".to_string(),
             spectrum_type : "WAFER SPECTRUM".to_string(),
             state : "PLASMA".to_string(),
+            yunits : Yunits::Transmittance,
             delta_x : 1.0,
             npoints : 4,
             first_x : 100.0,
@@ -209,7 +236,7 @@ mod tests {
             y_values : vec![0.1, 0.2, 0.3, 0.4]
         };
 
-        let mut spectrum_2 = Spectrum::new("KRYPTONITE", "WAFER SPECTRUM", "PLASMA", Xunits::cm, 1.0, 4.0, 4);
+        let mut spectrum_2 = Spectrum::new("KRYPTONITE", "WAFER SPECTRUM", "PLASMA", Xunits::cm, Yunits::Transmittance, 1.0, 4.0, 4);
         let to_add = vec!(0.1, 0.2, 0.3, 0.4);
         for y in to_add {
             spectrum_2.add_y(y);
@@ -220,7 +247,7 @@ mod tests {
     }
     #[test]
     fn test_private_methods() {
-        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, 4.0, 8.0, 3);
+        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, Yunits::Transmittance, 4.0, 8.0, 3);
         assert_eq!(spectrum.is_complete(), false);
         spectrum.add_y(1.0);
         assert_eq!(spectrum.is_complete(), false);
@@ -261,7 +288,7 @@ mod tests {
 
     #[test]
     fn test_transform_spectrum() {
-        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, 4.0, 8.0, 3);
+        let mut spectrum = Spectrum::new("Pretend molecule", "stethescope", "beam", Xunits::cm, Yunits::Transmittance, 4.0, 8.0, 3);
         spectrum.add_y(1.0);
         spectrum.add_y(1.1);
         spectrum.add_y(1.2);

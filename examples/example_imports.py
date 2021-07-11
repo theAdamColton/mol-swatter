@@ -1,5 +1,6 @@
 # This python file demonstrates importing and basic use of the rust mol_getter lib
 import sys
+
 sys.path.append("../bin/")
 import mol_swatter
 import os
@@ -15,9 +16,9 @@ def demonstrate_spectrum_parser(file_path):
         print("\tINVALID FILE :" + file_path)
         return
     print(spectrum.to_string())
-    new_spectrum = spectrum.transform(800, 3000, 1000)
-    print(str(new_spectrum.get_y_values)[0:20])
+    new_spectrum = spectrum.transform(800, 3500, 256)
     print(new_spectrum.to_string())
+    plot(new_spectrum)
 
 
 def iterate_over_files(file_extension, funct):
