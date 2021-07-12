@@ -27,7 +27,7 @@ class Autoencoder(Model):
         self.decoder = keras.Model(encoded_input, decoder_layer(encoded_input))
 
         self.autoencoder.compile(
-            optimizer="adadelta",
+            optimizer="adam",
             loss="binary_crossentropy",
             steps_per_execution=steps_per_exec,
         )
