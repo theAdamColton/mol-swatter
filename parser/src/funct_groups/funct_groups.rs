@@ -31,7 +31,7 @@ pub fn get_funct_groups() -> Vec<FunctGroup> {
     o.push(carbonyl()); o.push(carboxyl()); o.push(acid_chloride());
     o.push(aryl()); o.push(hydroxyl()); o.push(ester());
     o.push(peroxide()); o.push(ether()); o.push(anhydride());
-    o.push(ether()); o.push(anhydride()); o.push(amide());
+    o.push(anhydride()); o.push(amide());
     o.push(amine()); o.push(imine()); o.push(nitrile());
     o.push(pyridyl()); o.push(nitro()); o.push(sulfide());
     o.push(disulfide()); o.push(sulfide()); o.push(sulfoxide());
