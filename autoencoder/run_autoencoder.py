@@ -80,7 +80,7 @@ class Run:
         )
         parser.add_argument(
             "--training_points",
-            default=100,
+            default=50,
             type=int,
             help="Number of training points to be taken from the beggining of the data",
         )

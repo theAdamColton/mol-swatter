@@ -8,7 +8,7 @@ import os
 import sys
 
 DATA_DIR = 'raw_data/'
-LOGGING_PROGRESS_FILE = 'logging/progress'
+LOGGING_PROGRESS_FILE = '.progress'
 
 # This will let the script save the last max_size for easy resuming
 LOGGING = True
@@ -16,6 +16,7 @@ LOGGING = True
 REPEAT_DL = False
 
 def main():
+    assert sys.version_info >= (3, 9)
     logging.getLogger().setLevel(logging.INFO)
     starting_mass = 1
     if len(sys.argv) > 1:
